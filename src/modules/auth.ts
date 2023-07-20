@@ -1,26 +1,30 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import { NextFunction, Request, Response } from 'express';
 
-export const createJWt = (user) => {
+export const createJWt = (user): string => {
 	const token = jwt.sign(
-		{ id: user.id, email: user.email },
+		{ id: user.id, email: user.email, name: user.name },
 		process.env.JWT_SECRET,
 		{ expiresIn: '1d' }
 	);
 	return token;
 };
 
-const comparePassowrds = async (password: string, hashedPassword: string) => {
+export const comparePasswords = async (
+	password: string,
+	hashedPassword: string
+) => {
 	const match = await bcrypt.compare(password, hashedPassword);
 	return match;
 };
 
-const hashPassword = async (password: string) => {
+export const hashPassword = async (password: string) => {
 	const hashedPassword = await bcrypt.hash(password, 10);
 	return hashedPassword;
 };
 
-export const protect = (req, res, next) => {
+export const protect = (req, res: Response, next: NextFunction) => {
 	const token = req.headers.authorization;
 	if (!token) {
 		res.status(403);
